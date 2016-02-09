@@ -19,7 +19,7 @@ We will need to set up khmer :
 sudo apt-get update
 sudo apt-get install -y python-pip python-dev  
 sudo easy_install -U setuptools
-pip install khmer
+sudo pip install khmer
 ```
 
 And kmerspectrumanalyzer 
