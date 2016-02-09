@@ -5,7 +5,11 @@ filters.
 
 Launch an m3-xlarge instance on Amazon EC2 using the Ubuntu 14.04 server image.
 
+Hints on starting up can be found here:
 https://github.com/datacarpentry/cloud-genomics/blob/gh-pages/lessons/1.logging-onto-cloud.md
+
+And a sketch of a lesson, if you'd like a programming exercise / kmer interpretation
+puzzle, can be found at http://angus.readthedocs.org/en/2016/automation.html
 
 ## Installing the tools
 
@@ -128,7 +132,7 @@ abundance-dist.py -s SRR036919.4G.kh  SRR036919.fastq SRR036919.21
 ```
 
 The data carpentry 
-[https://github.com/JasonJWilliamsNY/cloud-genomics/blob/master/lessons/3.single-analysis.md](cloud-genomics class) has a recipe for Q-value trimming using Trimmomatic.
+(cloud genomics class)[https://github.com/JasonJWilliamsNY/cloud-genomics/blob/master/lessons/3.single-analysis.md] has a recipe for Q-value trimming using Trimmomatic.
 
 ```bash 
 mkdir /mnt/SRR519926_trimmed
