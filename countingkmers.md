@@ -177,7 +177,7 @@ And now we use a different functionality in trimmomatic to remove the adapters
 mkdir /mnt/SRR519926_adapterscrub
 cd /mnt/SRR519926_adapterscrub
 java -jar $trimmomatic PE -phred33 -trimlog trimlog.txt ../SRR519926_1.fastq ../SRR519926_2.fastq p1.fq u1.fq p2.fq u2.fq ILLUMINACLIP:$HOME/adapters.fa:2:30:10 2>&1 | tee cmd.txt
-cat p1.fq u1.fq p2.fq u2.fq | countkmer21.sh > SRR447649_scrubbed.21
+cat p1.fq u1.fq p2.fq u2.fq | countkmer21.sh > SRR519926_scrubbed.21
 ```
 
 Comparing this kmer spectrum, 
