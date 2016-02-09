@@ -35,10 +35,9 @@ tar xvf sratoolkit.2.5.7-ubuntu64.tar.gz
 export PATH=$PATH:$HOME/sratoolkit.2.5.7-ubuntu64/bin
 ```
 
-Now clone two 
+Now clone  
 ```bash
 cd && git clone http://github.com/dib-lab/khmer
-git clone http://github.com/wltrimbl/kmerspectrumanalyzer
 ```
 and we need some parts of these tools in our PATH
 ```bash
