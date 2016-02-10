@@ -167,7 +167,20 @@ This command uses the sequences in SRR447649.fastq and the kmer hash in SRR44764
 ```bash
 head SRR447649.4G.21
 ```
-
+```
+abundance,count,cumulative,cumulative_fraction
+0,0,0,0.0
+1,37116928,37116928,0.86
+2,1160657,38277585,0.887
+3,181385,38458970,0.891
+4,63910,38522880,0.893
+5,30616,38553496,0.893
+6,17771,38571267,0.894
+7,11728,38582995,0.894
+8,9046,38592041,0.894
+```
+Since this is a kmer spectrum, the first column is abundance, the second column is number of distinct
+items at each abundance. 
 Now we have one kmer spectrum, let us look at it.
 ```bash
 plotkmerspectrum.py SRR447649.21 -g 3
@@ -176,7 +189,13 @@ plotkmerspectrum.py SRR447649.21 -g 6
 plotkmerspectrum.py SRR447649.21 -g 1
 plotkmerspectrum.py SRR447649.21 -g 20
 ```
-This creates a series of pdf files in /mnt. 
+This creates a series of pdf files in /mnt that graph the spectrum from different angles: 
+![loglog kmer spectrum](images/SRR447649.4G.21.1.png)
+![fraction-abundance spectrum](images/SRR447649.4G.21.3.png)
+![k-dominance kmer graph](images/SRR447649.4G.21.5.png)
+![rank-abundance kmer spectrum](images/SRR447649.4G.21.6.png)
+![abundance histogram](images/SRR447649.4G.21.20.png)
+This dataset is typical illumina sequencing, though with a high error rate.
 
 And, since it just takes a minute, let us count our other two datasets
 ```bash
@@ -185,6 +204,14 @@ load-into-counting.py -x 1e9 -k 21 SRR519926.4G.kh SRR519926.fastq
 abundance-dist.py -s SRR519926.4G.kh  SRR519926.fastq SRR519926.4G.21
 load-into-counting.py -x 1e9 -k 21 SRR036919.4G.kh SRR036919.fastq 
 abundance-dist.py -s SRR036919.4G.kh  SRR036919.fastq SRR036919.4G.21
+```
+By this point we should have three `.4G.21` spectrum files.  We can plot them all at once:
+
+```bash
+for i in 1 3 5 6 20
+do 
+plotkmerspectrum.py *.21 -g $i 
+done
 ```
 
 The data carpentry 
