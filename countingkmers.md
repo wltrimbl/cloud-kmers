@@ -18,7 +18,7 @@ https://github.com/datacarpentry/cloud-genomics/blob/gh-pages/lessons/1.logging-
 
 ### ssh config 
 since the ssh command line is a little much:
-``bash
+```bash
 ssh -i "ec2key.pem" ubuntu@ec2-54-159-128-110.compute-1.amazonaws.com
 ```
 On mac and linux you can add four lines to `~/.ssh/config` to associate a nickname to your instance, provide the username automatically, and locate the key file without additional effort:
@@ -62,16 +62,15 @@ sudo easy_install -U setuptools
 sudo pip install khmer
 ```
 
-And [kmerspectrumanalyzer](http://github.com/wltrimbl/kmerspectrumanlyzer) +[jellyfish](http://www.cbcb.umd.edu/software/jellyfish/)  (yet another kmer counter + kmer count visualization)
+And [kmerspectrumanalyzer](http://github.com/wltrimbl/kmerspectrumanlyzer) + [jellyfish](http://www.cbcb.umd.edu/software/jellyfish/)  (yet another kmer counter + kmer count visualization)
 ```bash
 #sudo apt-get install -y git python-matplotlib python-scipy jellyfish
-git clone http://github.com/wltrimbl/kmerspectrumanalyzer
+cd && git clone http://github.com/wltrimbl/kmerspectrumanalyzer
 ```
 
-Now clone the [khmer](http://github.com/dib-lab/khmer) and [kmerspectrumanalyzer](http://github.com/wltrimbl/kmerspectrumanalyzer) repositories:
+And we also need to clone the [khmer](http://github.com/dib-lab/khmer) repository:
 ```bash
 cd && git clone http://github.com/dib-lab/khmer
-git clone http://github.com/wltrimbl/kmerspectrumanalyzer
 ```
 
 And install [Trimmomatic](http://www.usadellab.org/cms/index.php?page=trimmomatic)
@@ -111,7 +110,10 @@ sudo chown ubuntu /mnt
 ## Downloading sequence data
 Now the tools are in place, it is time some some sequence data and do something with it.
 
-I'd like to draw your attention to two datasets that we can get from SRA.
+I'd like to draw your attention to three datasets in SRA.: 
+* [SRR519926](http://www.ncbi.nlm.nih.gov/sra/?term=SRR519926)
+* [SRR036919](http://www.ncbi.nlm.nih.gov/sra/?term=SRR036919) and 
+* [SRR447649](http://www.ncbi.nlm.nih.gov/sra/?term=SRR447649) 
 
 ```bash
 cd /mnt
@@ -189,13 +191,30 @@ plotkmerspectrum.py SRR447649.21 -g 6
 plotkmerspectrum.py SRR447649.21 -g 1
 plotkmerspectrum.py SRR447649.21 -g 20
 ```
-This creates a series of pdf files in /mnt that graph the spectrum from different angles: 
+
+This creates a series of pdf files in /mnt that graph the spectrum from different angles.
+
+### Viewing the graphs
+We'd like to look at these images.
+* You can move the image files via `scp` from your node to your local machine.
+* If that fails, you can copy the files to a third location (github, department ftp server) provided you authenticate from your node
+* On Mac and linux with a fast connection you can draw windows on your local machine using Xwindows; this requires an image viewer and possibly a pdf viewer for ubuntu.
+* You can use the [dropbox linux client](http://ged.msu.edu/angus/tutorials-2013/installing-dropbox.html) trick described in another Angus lesson to syncrhonize a diretory on your node and your local machine.
+
 ![loglog kmer spectrum](images/SRR447649.4G.21.1.png)
 ![fraction-abundance spectrum](images/SRR447649.4G.21.3.png)
 ![k-dominance kmer graph](images/SRR447649.4G.21.5.png)
 ![rank-abundance kmer spectrum](images/SRR447649.4G.21.6.png)
 ![abundance histogram](images/SRR447649.4G.21.20.png)
+
 This dataset is typical illumina sequencing, though with a high error rate.
+
+Among the things we can learn from these graphs of the spectrum:
+* The dataset has a modal kmer abundance of 22x (corresponding to 24x "real" abundance) 
+* A large fraction of the whole dataset (43%) is in unique, "singleton" kmers.  This is 
+high for illumina.
+* The dataset has modest (2%) levels of adapter contamination--sequences less than 100bp in
+length at very high kmer abundances, >10,000x
 
 And, since it just takes a minute, let us count our other two datasets
 ```bash
@@ -215,7 +234,7 @@ done
 ```
 
 The data carpentry 
-(cloud genomics class)[https://github.com/JasonJWilliamsNY/cloud-genomics/blob/master/lessons/3.single-analysis.md] has a recipe for Q-value trimming using Trimmomatic.
+[cloud genomics class](https://github.com/JasonJWilliamsNY/cloud-genomics/blob/master/lessons/3.single-analysis.md) has a recipe for Q-value trimming using Trimmomatic.
 
 ```bash 
 mkdir /mnt/SRR519926_trimmed
@@ -230,19 +249,21 @@ cat p1.fq u1.fq p2.fq u2.fq | countkmer21.sh > SRR519926_trimmed.21
 ```
 
 ```bash
-plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.21 -g 5
-plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.21 -g 3
-plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.21 -g 6
-plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.21 -g 20
-plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.21 -g 1
+plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.4G.21 -g 5
+plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.4G.21 -g 3
+plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.4G.21 -g 6
+plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.4G.21 -g 20
+plotkmerspectrum.py SRR519926_trimmed.21 ../SRR519926.4G.21 -g 1
 ```
 These commands do two things; they create pdf graphs comparing the two spectra, 
 and a one-line statistical summaries in the file kmers.log.
 
+
+## What do we see?
 Now if we compare the kmer spectrum before and after, we find several things:
-* The trimming reduced our total depth.  
-* The trimming dramatically reduced the number and fraction of singleton observations.
-* The dataset has modest (2%) levels of adapter contamination that were not addressed by the above recipe, and large fractions (%) of unique, presumptively erroneous kmers.
+* The trimming reduced the modal kmer abundance from 22x to 17x -- this is the genome we threw out with trimming.
+* The trimming dramatically reduced the number and fraction of singleton observations, from 43% to less than 2% of the surviving data.
+* The 2% adapter adapter contamination was not addressed by the above recipe, and the elimiation of the singletons actually drove the adapter fraction up to 4%.
 
 Let us try a different scrubbing recipe.  First, we need a file with the right contaminating adapters
 
@@ -255,7 +276,7 @@ AGATCGGAAGAGCACACGTCTGAACTCCAGTCACTTAACTCATCTCGTATGCCGTCTTCTGCTTG
 EOF
 ```
 
-And now we use a different functionality in trimmomatic to remove the adapters
+And now we use a different functionality in trimmomatic to remove the adapters: ILLUMINACLIP
 ```bash
 mkdir /mnt/SRR519926_adapterscrub
 cd /mnt/SRR519926_adapterscrub
@@ -263,9 +284,22 @@ java -jar $trimmomatic PE -phred33 -trimlog trimlog.txt ../SRR519926_1.fastq ../
 cat p1.fq u1.fq p2.fq u2.fq | countkmer21.sh > SRR519926_scrubbed.21
 ```
 
-Comparing this kmer spectrum, 
+Now we have the original, post-quality-filtering, and post-adapter-scrubbing variants of our favorite dataset.
+Rather than using just the filenames, we can direct `plotkmerspectrum` to take a set of files with human-readable labels:
+```bash
+cat > ~/compare.list <<EOF
+SRR519926.4G.21	SRR519926 original
+SRR519926_adapterscrub/SRR519926_trimmed.21	qualitytrimmed
+SRR519926_adapterscrub/SRR519926_scrubbed.21	adapterscrubbed
+EOF
+```
+```bash
+# This produces compare.list.3.pdf
+plotkmerspectrum.py -l compare.list -g 3
+```
+
+Comparing the effect of this treatment on the kmer spectrum, 
 * Adapter scrubbing barely reduced the total depth on the genome.
 * Adapter scrubbing only slightly reduced the number and fraction of singleton observations.  This improved our data "quality" by removing spurious concatamers between the adapter and bits of genomic context.
-
 
 
