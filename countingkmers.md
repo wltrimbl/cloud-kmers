@@ -1,61 +1,98 @@
+# Counting kmers for sequencing quality awareness
+
 ## Instance 
 This lesson aims to download a handful of datasets onto a cloud instance, count
 kmers in them, and compare kmer spectra before and after some bioinformatic 
 filters.
 
-Launch an m3-xlarge instance on Amazon EC2 using the Ubuntu 14.04 server image.
+A programming exercise / kmer interpretation
+puzzle, can be found in another ngs-docs lesson at 
+http://angus.readthedocs.org/en/2016/automation.html
 
-Hints on starting up can be found here:
+## Set up Amazon instance and install dependencies
+
+Launch an *m3-xlarge* instance on Amazon EC2 using the *Ubuntu 14.04 server* image.
+
+Hints on starting an instance can be found here:
 https://github.com/datacarpentry/cloud-genomics/blob/gh-pages/lessons/1.logging-onto-cloud.md
 
-And a sketch of a lesson, if you'd like a programming exercise / kmer interpretation
-puzzle, can be found at http://angus.readthedocs.org/en/2016/automation.html
+### ssh config 
+since the ssh command line is a little much:
+``bash
+ssh -i "ec2key.pem" ubuntu@ec2-54-159-128-110.compute-1.amazonaws.com
+```
+On mac and linux you can add four lines to `~/.ssh/config` to associate a nickname to your instance, provide the username automatically, and locate the key file without additional effort:
+```
+Host ec2
+Hostname ec2-54-159-128-110.compute-1.amazonaws.com
+User ubuntu
+IdentityFile /Users/wltrimbl/Downloads/ec2key.pem
+```
+This makes it possible to ssh into your newly created instance with comparatively little typing:
+```bash
+ssh ec2
+```
+and, even better, you can do one-line command-line transfers of files to / from your local machine and remote machines:
+```bash
+scp localfile ec2:/path/to/remotefile
+```
 
 ## Installing the tools
 
-We will need to set up khmer :
-
+First, we will need all the ubuntu packages the below tools depend on.
 ```bash
 sudo apt-get update
-sudo apt-get install -y python-pip python-dev  
+```
+and then
+```
+sudo apt-get install -y python-pip python-dev git python-matplotlib python-scipy jellyfish default-jre unzip
+```
+
+We first install [SRAtools](https://github.com/ncbi/sra-tools/wiki/Downloads):  (we will use this to get / convert format of sequence data from SRA)
+```
+wget http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.5.7/sratoolkit.2.5.7-ubuntu64.tar.gz
+tar xvf sratoolkit.2.5.7-ubuntu64.tar.gz
+```
+
+Then [khmer](http://khmer.readthedocs.org/en/v2.0/) : (we will use this to count kmers)
+```bash
+#sudo apt-get update
+#sudo apt-get install -y python-pip python-dev  
 sudo easy_install -U setuptools
 sudo pip install khmer
 ```
 
-And kmerspectrumanalyzer 
+And [kmerspectrumanalyzer](http://github.com/wltrimbl/kmerspectrumanlyzer) +[jellyfish](http://www.cbcb.umd.edu/software/jellyfish/)  (yet another kmer counter + kmer count visualization)
 ```bash
-sudo apt-get install -y git python-matplotlib python-scipy jellyfish
+#sudo apt-get install -y git python-matplotlib python-scipy jellyfish
 git clone http://github.com/wltrimbl/kmerspectrumanalyzer
 ```
 
-and SRAtools
-```
-wget http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.5.7/sratoolkit.2.5.7-ubuntu64.tar.gz
-tar xvf sratoolkit.2.5.7-ubuntu64.tar.gz
-export PATH=$PATH:$HOME/sratoolkit.2.5.7-ubuntu64/bin
-```
-
-Now clone two 
+Now clone the [khmer](http://github.com/dib-lab/khmer) and [kmerspectrumanalyzer](http://github.com/wltrimbl/kmerspectrumanalyzer) repositories:
 ```bash
 cd && git clone http://github.com/dib-lab/khmer
 git clone http://github.com/wltrimbl/kmerspectrumanalyzer
 ```
-and we need some parts of these tools in our PATH
-```bash
-export PATH=$PATH:$HOME/khmer/sandbox
-export PATH=$PATH:$HOME/kmerspectrumanalyzer/src
-```
 
-One more piece -- trimmomatic.
+And install [Trimmomatic](http://www.usadellab.org/cms/index.php?page=trimmomatic)
 ```bash
-sudo apt-get install -y default-jre unzip
+#sudo apt-get install -y default-jre unzip
 cd && wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.35.zip
 unzip Trimmomatic-0.35.zip
-trimmomatic=$HOME/Trimmomatic-0.35/trimmomatic-0.35.jar
 ```
 
-## Check toolkit for completeness
-Ok.  Let us test the kit.
+and finally, we configure our PATH for the parts of the tools
+```bash
+echo 'PATH=$PATH:$HOME/khmer/sandbox' >> ~/.bashrc
+echo 'PATH=$PATH:$HOME/kmerspectrumanalyzer/src' >> ~/.bashrc
+echo 'PATH=$PATH:$HOME/sratoolkit.2.5.7-ubuntu64/bin' >> ~/.bashrc
+echo 'trimmomatic=$HOME/Trimmomatic-0.35/trimmomatic-0.35.jar' >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Check toolkit for completeness
+
+Let us test the kit.
 ```bash
 fastq-dump --help && echo OK
 error-correct-pass2.py --help && echo OK 
@@ -65,7 +102,8 @@ touch /mnt/littlebunnyfoofoo && echo OK
 ```
 
 If we can't create a file in /mnt we aren't going to get very far, so 
-we change permissions on /mnt
+change permissions on /mnt
+
 ```bash
 sudo chown ubuntu /mnt
 ```
@@ -78,35 +116,41 @@ I'd like to draw your attention to two datasets that we can get from SRA.
 ```bash
 cd /mnt
 wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR519/SRR519926/SRR519926.sra #   86M
-wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR036/SRR036919/SRR036919.sra
-wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR447/SRR447649/SRR447649.sra #   168M
+wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR036/SRR036919/SRR036919.sra #  196M 
+wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR447/SRR447649/SRR447649.sra #  168M
 fastq-dump --split-3 SRR519926.sra 
 fastq-dump --split-spot SRR519926.sra
 fastq-dump --split-3 SRR036919.sra 
-# This step creates SRR447649_1.fastq and SRR447649_2.fastq 
+
+# This step creates SRR447649_1.fastq and SRR447649_2.fastq
 fastq-dump --split-3 SRR447649.sra 
-# This puts the same data into a single file SRR447649.fastq 
+# This puts the same data into a single file SRR447649.fastq
 fastq-dump --split-spot SRR447649.sra 
 ```
-This downloads two smallish datasets from SRA in SRA's format, and uncompresses them into one or two files, depending on whether the sequencing run produced paired reads or not.
+This downloads three smallish datasets from SRA in SRA's format, and uncompresses them into one or two files, depending on whether the sequencing run produced paired reads or not.
 
 We get output like
-```bash
+```
 Rejected 1373828 READS because of filtering out non-biological READS
 Read 1373828 spots for SRR447649.sra
 Written 1373828 spots for SRR447649.sra
 ```
+This procedure gives us 7 FASTQ files.  We should look at them.
+
+```
+head -n 4 SRR447649.fastq   # Escherichia coli str. K-12 substr. MG1655 from Broad  2x101bp
+head -n 4 SRR036919.fastq   # Phix calibration lane from Berkeley 1x45bp
+head -n 4 SRR519926.fastq   # Escherichia coli str. K-12 substr. MG1655 on Miseq from Broad 2  2x251bp
+```
 
 ## Counting kmers
 
-I'll show you two ways to count the kmers in these datasets: first, using khmer.
-First we create a kmer hash from the two
+First, we will count the kmers in these datasets using khmer.   This is a two-step process, we first parse the data and populate a kmer bloom filter: 
 ```bash
 load-into-counting.py -x 1e9 -k 21 SRR447649.4G.kh SRR447649_1.fastq SRR447649_2.fastq 
-abundance-dist.py -s SRR447649.4G.kh  SRR447649.fastq SRR447649.4G.21
 ```
-
-```bash
+This produces SRR447649.4G.kh using the all the sequence data SRR447649_1.fastq and SRR447649_2.fastq.
+```
 Saving k-mer countgraph to SRR447649.4G.kh
 Loading kmers from sequences in ['SRR447649_1.fastq', 'SRR447649_2.fastq']
 making countgraph
@@ -115,12 +159,24 @@ consuming input SRR447649_2.fastq
 Total number of unique k-mers: 43156383
 saving SRR447649.4G.kh
 ```
+Next parse the dataset a second time to look up the final count of each kmer with abundance-dist.py:  
+```bash
+abundance-dist.py -s SRR447649.4G.kh  SRR447649.fastq SRR447649.4G.21
+```
+This command uses the sequences in SRR447649.fastq and the kmer hash in SRR447649.4G.kh and produces a summary spectrum in  SRR447649.4G.21
+```bash
+head SRR447649.4G.21
+```
 
 Now we have one kmer spectrum, let us look at it.
 ```bash
 plotkmerspectrum.py SRR447649.21 -g 3
+plotkmerspectrum.py SRR447649.21 -g 5
+plotkmerspectrum.py SRR447649.21 -g 6
+plotkmerspectrum.py SRR447649.21 -g 1
+plotkmerspectrum.py SRR447649.21 -g 20
 ```
-This creates a pdf file in /mnt.  
+This creates a series of pdf files in /mnt. 
 
 And, since it just takes a minute, let us count our other two datasets
 ```bash
@@ -128,7 +184,7 @@ fastq-dump --split-spot SRR519926
 load-into-counting.py -x 1e9 -k 21 SRR519926.4G.kh SRR519926.fastq 
 abundance-dist.py -s SRR519926.4G.kh  SRR519926.fastq SRR519926.4G.21
 load-into-counting.py -x 1e9 -k 21 SRR036919.4G.kh SRR036919.fastq 
-abundance-dist.py -s SRR036919.4G.kh  SRR036919.fastq SRR036919.21
+abundance-dist.py -s SRR036919.4G.kh  SRR036919.fastq SRR036919.4G.21
 ```
 
 The data carpentry 
@@ -139,9 +195,9 @@ mkdir /mnt/SRR519926_trimmed
 cd /mnt/SRR519926_trimmed
 java -jar $trimmomatic  PE -phred33 -trimlog trimlog.txt ../SRR519926_1.fastq ../SRR519926_2.fastq p1.fq u1.fq p2.fq u2.fq LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:50 2>&1 | tee cmd.txt
 ```
-This gives us four files for paired and unpaired reads post-trimming p1.fq u1.fq p2.fq u2.fq
+This gives us four files for paired and unpaired reads post-trimming p1.fq u1.fq p2.fq u2.fq.
 
-Now let us combine the four output files and count kmers
+Now let us combine the four output files and count kmers, this time using jellyfish:
 ```bash
 cat p1.fq u1.fq p2.fq u2.fq | countkmer21.sh > SRR519926_trimmed.21
 ```
@@ -182,7 +238,7 @@ cat p1.fq u1.fq p2.fq u2.fq | countkmer21.sh > SRR519926_scrubbed.21
 
 Comparing this kmer spectrum, 
 * Adapter scrubbing barely reduced the total depth on the genome.
-* Adapter scrubbing only slightly reduced the number and fraction of singleton observations.
+* Adapter scrubbing only slightly reduced the number and fraction of singleton observations.  This improved our data "quality" by removing spurious concatamers between the adapter and bits of genomic context.
 
 
 
