@@ -245,13 +245,17 @@ plotkmerspectrum.py *.21 -g $i
 done
 # should generate ERR098008.21.1.pdf ERR098008.21.3.pdf ERR098008.21.5.pdf ERR098008.21.6.pdf and ERR098008.21.20.pdf
 ```
+
 These first two visualizations tell us that one dataset has very high >10000x abundance and the others are medium 20-60x:
 
 ![loglog kmer spectrum](images/three.list.1.png.1.png)
 ![stairstep abundance histogram](images/three.list.20.png.20.png)
 And here we learn that some E. coli datasets are almost half singletons:
 ![fraction-abundance plot](images/three.list.3.png.3.png)
-But these visualizations, against kmer rank, show us separation between the low-complexity (6kb) PhiX sequencing and the 5 Mbase E. coli:
+
+But these two visualizations, using kmer rank, show the difference 
+between the low-complexity (6kb) PhiX sequencing and the 5 Mbase E. coli:
+
 ![tank-abundance plot](images/three.list.6.png.6.png)
 ![k-dominance graph](images/three.list.5.png.5.png)
 
@@ -265,7 +269,9 @@ The data carpentry
 ```bash 
 mkdir /mnt/SRR519926_trimmed
 cd /mnt/SRR519926_trimmed
-java -jar $trimmomatic  PE -phred33 -trimlog trimlog.txt ../SRR519926_1.fastq ../SRR519926_2.fastq p1.fq u1.fq p2.fq u2.fq LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:50 2>&1 | tee cmd.txt
+java -jar $trimmomatic  PE -phred33 -trimlog trimlog.txt \
+   ../SRR519926_1.fastq ../SRR519926_2.fastq p1.fq u1.fq p2.fq u2.fq \
+   LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:50 2>&1 | tee cmd.txt
 ```
 This gives us four files for paired and unpaired reads post-trimming p1.fq u1.fq p2.fq u2.fq.
 
@@ -298,11 +304,11 @@ and C50 is the depth needed to explain half of the data.
 
 ### Before and after plots
 
-![loglog kmer spectrum](compare/three.list.1.png.1.png)
-![stairstep abundance histogram](compare/three.list.20.png.20.png)
-![fraction-abundance plot](compare/three.list.3.png.3.png)
-![tank-abundance plot](compare/three.list.6.png.6.png)
-![k-dominance graph](compare/three.list.5.png.5.png)
+![loglog kmer spectrum](images/compare.list.1.png.1.png)
+![stairstep abundance histogram](images/compare.list.20.png.20.png)
+![fraction-abundance plot](images/compare.list.3.png.3.png)
+![tank-abundance plot](images/compare.list.6.png.6.png)
+![k-dominance graph](images/compare.list.5.png.5.png)
 
 ## What do we see?
 Now if we compare the kmer spectrum before and after, we find several things:
@@ -325,7 +331,9 @@ And now we use a different functionality in trimmomatic to remove the adapters: 
 ```bash
 mkdir /mnt/SRR519926_adapterscrub
 cd /mnt/SRR519926_adapterscrub
-java -jar $trimmomatic PE -phred33 -trimlog trimlog.txt ../SRR519926_1.fastq ../SRR519926_2.fastq p1.fq u1.fq p2.fq u2.fq ILLUMINACLIP:$HOME/adapters.fa:2:30:10 2>&1 | tee cmd.txt
+java -jar $trimmomatic PE -phred33 -trimlog trimlog.txt \
+    ../SRR519926_1.fastq ../SRR519926_2.fastq p1.fq u1.fq p2.fq u2.fq \ 
+    ILLUMINACLIP:$HOME/adapters.fa:2:30:10 2>&1 | tee cmd.txt
 # and then count the kmers:
 cat p1.fq u1.fq p2.fq u2.fq | countkmer21.sh > SRR519926_scrubbed.21
 ```
