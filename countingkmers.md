@@ -1,9 +1,10 @@
 # Counting kmers for sequencing quality awareness
+Will Trimble, Argonne National Laboratory
 
-## Instance 
+## Purpose
 This lesson downloads a handful of datasets onto a cloud instance, counts
-long (k=21) kmers in them, and compares kmer spectra before and after some bioinformatic 
-filters.
+long (k=21) kmers in them, and compares kmer spectra before and after
+some bioinformatic filters.
 
 A programming exercise / kmer interpretation
 puzzle, can be found in another ngs-docs lesson at 
@@ -254,7 +255,8 @@ And here we learn that some E. coli datasets are almost half singletons:
 ![fraction-abundance plot](images/three.list.3.png)
 
 But these two visualizations, using kmer rank, show the difference 
-between the low-complexity (6kb) PhiX sequencing and the 5 Mbase E. coli:
+between the low-complexity (6kb) PhiX sequencing and the 
+two 5 Mbase E. coli datasets:
 
 ![tank-abundance plot](images/three.list.6.png)
 ![k-dominance graph](images/three.list.5.png)
