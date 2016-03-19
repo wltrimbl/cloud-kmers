@@ -251,7 +251,7 @@ These first two visualizations tell us that one dataset has very high >10000x ab
 ![loglog kmer spectrum](images/three.list.1.png.1.png)
 ![stairstep abundance histogram](images/three.list.20.png.20.png)
 And here we learn that some E. coli datasets are almost half singletons:
-![fraction-abundance plot](images/three.list.3.png.3.png)
+![fraction-abundance plot](images/three.list.3.png)
 
 But these two visualizations, using kmer rank, show the difference 
 between the low-complexity (6kb) PhiX sequencing and the 5 Mbase E. coli:
@@ -304,13 +304,13 @@ and C50 is the depth needed to explain half of the data.
 
 ### Before and after plots
 
-![loglog kmer spectrum](images/compare.list.1.png.1.png)
-![stairstep abundance histogram](images/compare.list.20.png.20.png)
-![fraction-abundance plot](images/compare.list.3.png.3.png)
-![tank-abundance plot](images/compare.list.6.png.6.png)
-![k-dominance graph](images/compare.list.5.png.5.png)
+![loglog kmer spectrum](images/compare.list.1.png)
+![stairstep abundance histogram](images/compare.list.20.png)
+![fraction-abundance plot](images/compare.list.3.png)
+![tank-abundance plot](images/compare.list.6.png)
+![k-dominance graph](images/compare.list.5.png)
 
-## What do we see?
+### What do we see?
 Now if we compare the kmer spectrum before and after, we find several things:
 * The trimming reduced the modal kmer abundance from 22x to 17x -- this is the genome we threw out with trimming.
 * The trimming dramatically reduced the number and fraction of singleton observations, from 43% to less than 2% of the surviving data.
@@ -360,6 +360,6 @@ Comparing the effect of this treatment on the kmer spectrum,
 ## In conclusion
 * Counting long kmers is easy and cheap unless you have Hiseq lanes of soil.
 * Kmer spectra readily distinguish low-complexity, deep sequencing from complex, shallow sequencing.
-* Spectra provide hints about error rates and error correction paramters
+* Spectra provide hints about error rates and error correction parameters
 * We can see the effect of treatments from the spectra--adatper removal removed most of the high-abundance junk and some of the errors, while the quality filtering removed most of the errors, none of the adapters, and 20% of the genome.
 
