@@ -60,6 +60,7 @@ Then [khmer](http://khmer.readthedocs.org/en/v2.0/) : (we will use this to count
 #sudo apt-get install -y python-pip python-dev  
 sudo easy_install -U setuptools
 sudo pip install khmer
+cd && git clone http://github.com/dib-lab/khmer
 ```
 
 And [kmerspectrumanalyzer](http://github.com/wltrimbl/kmerspectrumanlyzer) + [jellyfish](http://www.cbcb.umd.edu/software/jellyfish/)  (yet another kmer counter + kmer count visualization)
