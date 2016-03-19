@@ -248,16 +248,16 @@ done
 
 These first two visualizations tell us that one dataset has very high >10000x abundance and the others are medium 20-60x:
 
-![loglog kmer spectrum](images/three.list.1.png.1.png)
-![stairstep abundance histogram](images/three.list.20.png.20.png)
+![loglog kmer spectrum](images/three.list.1.png)
+![stairstep abundance histogram](images/three.list.20.png)
 And here we learn that some E. coli datasets are almost half singletons:
 ![fraction-abundance plot](images/three.list.3.png)
 
 But these two visualizations, using kmer rank, show the difference 
 between the low-complexity (6kb) PhiX sequencing and the 5 Mbase E. coli:
 
-![tank-abundance plot](images/three.list.6.png.6.png)
-![k-dominance graph](images/three.list.5.png.5.png)
+![tank-abundance plot](images/three.list.6.png)
+![k-dominance graph](images/three.list.5.png)
 
 ## Before and after kmer visualizations
 We can use kmers to describe datasets before and after bioinformatic manipulations.  Here we apply Q-value trimming and adapter scrubbing to one of the example E. coli datasets and examine the results.
